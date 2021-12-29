@@ -19,7 +19,7 @@ import static org.hamcrest.Matchers.not;
 public class OrderCreateParameterizedPositiveTest {
 
     public OrderMethods orderMethods;
-    public OrderCredentails orderCredentails; // for order cancelling
+    public OrderCredentials orderCredentials; // for order cancelling
     private int orderTrack;
     private final Order order;
     private final int statusCode;

@@ -48,10 +48,10 @@ public class OrderMethods extends RestAssured {
     }
 
     // метод не работает
-    public boolean cancel (OrderCredentails orderCredentails) {
+    public boolean cancel (OrderCredentials orderCredentials) {
         return given()
                 .spec(getBaseSpec())
-                .body(orderCredentails)
+                .body(orderCredentials)
                 .when()
                 .put(ORDER_PATH + "cancel")
                 .then()
