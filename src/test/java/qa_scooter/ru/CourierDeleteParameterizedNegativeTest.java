@@ -35,7 +35,7 @@ public class CourierDeleteParameterizedNegativeTest {
         return new Object[][] {
                 {"",404,"Not Found."},
                 {null,500,"invalid input syntax for type integer: \"null\""},
-                {"0",404,"Курьера с таким id нет."},
+                {"0",404,"Курьера с таким id нет."}
         };
     }
 
@@ -46,7 +46,7 @@ public class CourierDeleteParameterizedNegativeTest {
     public void testGetResponse() {
 
         // Удаление курьера
-        ValidatableResponse response = courierMethods.deleteValidatableResponse(courierId);
+        ValidatableResponse response = courierMethods.delete(courierId);
 
         // Проверка ответа
         response.assertThat().statusCode(statusCode).and().body("code",equalTo(statusCode),"message",equalTo(message));

@@ -22,27 +22,31 @@ public class CourierLoginPositiveTest {
     }
 
     @After
-    @Step("Send DELETE request to /api/v1/courier/courierId - to delete courier after test")
+    @Step("After test: send DELETE request to /api/v1/courier/courierId - to delete courier")
     public void tearDown() {
         if (courierId != 0) {
-            courierMethods.delete(courierId);
-            System.out.println("courier is deleted");
+            ValidatableResponse response = courierMethods.delete(courierId);
+            if (response.extract().statusCode() == 200) {
+                System.out.println("\ncourier is deleted\n");
+            } else {
+                System.out.println("\ncourier was not deleted\n");
+            }
         }
     }
 
 
-    @Step("Send POST request to /api/v1/courier - to create courier")
+    @Step("Before test: send POST request to /api/v1/courier - to create courier")
     public void createCourier(Courier courier) {
 
         // Создание курьера
-        courierMethods.create(courier);
+        courierMethods.create(courier).assertThat().statusCode(201);
     }
 
-    @Step("Get courier id from response")
+    @Step("After test: get courier id from response")
     public void getCourierId(ValidatableResponse response) {
 
         // Запись id курьера для последующего удаления
-        courierId = response.extract().path("id");;
+        courierId = response.extract().path("id");
     }
 
 
@@ -58,7 +62,7 @@ public class CourierLoginPositiveTest {
         createCourier(courier);
 
         // Авторизация курьера
-        ValidatableResponse response = courierMethods.loginValidatableResponse(new CourierCredentials(courier.login, courier.password));
+        ValidatableResponse response = courierMethods.login(new CourierCredentials(courier.login, courier.password));
 
         // Проверка ответа
         response.assertThat().statusCode(200).and().body("id", allOf(notNullValue(), is(not(0))));

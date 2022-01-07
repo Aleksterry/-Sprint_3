@@ -24,28 +24,32 @@ public class CourierCreateDuplicateLoginTest {
     }
 
     @After
-    @Step("Send DELETE request to /api/v1/courier/courierId - to delete courier after test")
+    @Step("After test: send DELETE request to /api/v1/courier/courierId - to delete courier")
     public void tearDown() {
         if (courierId != 0) {
-            courierMethods.delete(courierId);
-            System.out.println("courier is deleted");
+            ValidatableResponse response = courierMethods.delete(courierId);
+            if (response.extract().statusCode() == 200) {
+                System.out.println("\ncourier is deleted\n");
+            } else {
+                System.out.println("\ncourier was not deleted\n");
+            }
         }
     }
 
 
-    @Step("Send POST request to /api/v1/courier - to create courier")
+    @Step("Before test: send POST request to /api/v1/courier - to create courier")
     public void createCourier(Courier courier) {
 
         // Создание курьера
-        courierMethods.create(courier);
+        courierMethods.create(courier).assertThat().statusCode(201);
     }
 
 
-    @Step("Send POST request to /api/v1/courier/login - to get courier id")
+    @Step("After test: send POST request to /api/v1/courier/login - to get courier id")
     public void getCourierId(Courier courier) {
 
         // Запись id курьера для последующего удаления
-        courierId = courierMethods.login(new CourierCredentials(courier.login, courier.password));
+        courierId = (courierMethods.login(new CourierCredentials(courier.login, courier.password))).extract().path("id");
     }
 
 
@@ -61,7 +65,7 @@ public class CourierCreateDuplicateLoginTest {
         createCourier(courier);
 
         // Создание курьера с теми же данными
-        ValidatableResponse response = courierMethods.createValidatableResponse(courier);
+        ValidatableResponse response = courierMethods.create(courier);
 
         // Проверка ответа
         response.assertThat().statusCode(409)
@@ -70,7 +74,6 @@ public class CourierCreateDuplicateLoginTest {
 
         // Запись id курьера для последующего удаления
         getCourierId(courier);
-
     }
 
 }

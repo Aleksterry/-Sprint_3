@@ -22,18 +22,18 @@ public class CourierDeletePositiveTest {
     }
 
 
-    @Step("Send POST request to /api/v1/courier - to create courier")
+    @Step("Before test: send POST request to /api/v1/courier - to create courier")
     public void createCourier(Courier courier) {
 
         // Создание курьера
-        courierMethods.create(courier);
+        courierMethods.create(courier).assertThat().statusCode(201);
     }
 
-    @Step("Send POST request to /api/v1/courier/login - to get courier id")
+    @Step("Before test: send POST request to /api/v1/courier/login - to get courier id")
     public void getCourierId(Courier courier) {
 
         // Авторизация курьера с записью id курьера
-        courierId = courierMethods.login(new CourierCredentials(courier.login, courier.password));
+        courierId = (courierMethods.login(new CourierCredentials(courier.login, courier.password))).assertThat().statusCode(200).extract().path("id");
     }
 
 
@@ -52,7 +52,7 @@ public class CourierDeletePositiveTest {
         getCourierId(courier);
 
         // Удаление курьера
-        ValidatableResponse response = courierMethods.deleteValidatableResponse(courierId);
+        ValidatableResponse response = courierMethods.delete(courierId);
 
         // Проверка ответа
         response.assertThat().statusCode(200).and().body("ok", equalTo(true));

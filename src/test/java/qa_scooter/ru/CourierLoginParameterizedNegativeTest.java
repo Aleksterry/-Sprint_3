@@ -40,27 +40,31 @@ public class CourierLoginParameterizedNegativeTest {
     }
 
     @After
-    @Step("Send DELETE request to /api/v1/courier/courierId - to delete courier after test")
+    @Step("After test: send DELETE request to /api/v1/courier/courierId - to delete courier")
     public void tearDown() {
         if (courierId != 0) {
-            courierMethods.delete(courierId);
-            System.out.println("courier is deleted");
+            ValidatableResponse response = courierMethods.delete(courierId);
+            if (response.extract().statusCode() == 200) {
+                System.out.println("\ncourier is deleted\n");
+            } else {
+                System.out.println("\ncourier was not deleted\n");
+            }
         }
     }
 
 
-    @Step("Send POST request to /api/v1/courier - to create courier")
+    @Step("Before test: send POST request to /api/v1/courier - to create courier")
     public void createCourier() {
 
         // Создание курьера с заданными логин и паролем для последующей авторизации
-        courierMethods.create(Courier.getRandomWithoutLoginAndPass("admin", "1234567890"));
+        courierMethods.create(Courier.getRandomWithoutLoginAndPass("admin", "1234567890")).assertThat().statusCode(201);
     }
 
-    @Step("Send POST request to /api/v1/courier/login - to get courier id")
+    @Step("After test: send POST request to /api/v1/courier/login - to get courier id")
     public void getCourierId() {
 
         // Запись id курьера для последующего удаления
-        courierId = courierMethods.login(CourierCredentials.getCourierCredentials("admin", "1234567890"));
+        courierId = (courierMethods.login(CourierCredentials.getCourierCredentials("admin", "1234567890"))).extract().path("id");
     }
 
 
@@ -70,8 +74,8 @@ public class CourierLoginParameterizedNegativeTest {
                 {CourierCredentials.getCourierCredentials("admin", ""),400,"Недостаточно данных для входа"},
                 {CourierCredentials.getCourierCredentials("", "1234567890"),400,"Недостаточно данных для входа"},
                 {CourierCredentials.getCourierCredentials(null, "1234567890"),400,"Недостаточно данных для входа"},
-                //{CourierCredentials.getCourierCredentials("admin", null),400,"Недостаточно данных для входа"}, - ошибка 504
                 {CourierCredentials.getCourierCredentials("admin", "123456"),404,"Учетная запись не найдена"},
+                {CourierCredentials.getCourierCredentials("admin", null),400,"Недостаточно данных для входа"}, //ошибка 504
         };
     }
 
@@ -82,7 +86,7 @@ public class CourierLoginParameterizedNegativeTest {
         public void testGetResponse() {
 
             // Авторизация курьера
-            ValidatableResponse response = courierMethods.loginValidatableResponse(courierCredentials);
+            ValidatableResponse response = courierMethods.login(courierCredentials);
 
             // Проверка ответа
             response.assertThat().statusCode(statusCode).and().body("code",equalTo(statusCode),"message",equalTo(message));

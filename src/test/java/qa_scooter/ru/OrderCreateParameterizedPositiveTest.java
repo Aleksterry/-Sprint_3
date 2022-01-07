@@ -19,16 +19,13 @@ import static org.hamcrest.Matchers.not;
 public class OrderCreateParameterizedPositiveTest {
 
     public OrderMethods orderMethods;
-    public OrderCredentials orderCredentials; // for order cancelling
     private int orderTrack;
     private final Order order;
     private final int statusCode;
-    private final boolean message;
 
-    public OrderCreateParameterizedPositiveTest(Order order, int statusCode, boolean message) {
+    public OrderCreateParameterizedPositiveTest(Order order, int statusCode) {
         this.order = order;
         this.statusCode = statusCode;
-        this.message = message;
     }
 
 
@@ -38,18 +35,22 @@ public class OrderCreateParameterizedPositiveTest {
     }
 
     @After
-    @Step("Send PUT request to /api/v1/orders/cancel - to cancel order - do not working now")
+    @Step("After test: send PUT request to /api/v1/orders/cancel - to cancel order")
     public void tearDown() {
 
         if (orderTrack != 0) {
             // метод отмены не работает
-            //orderMethods.cancel(new OrderCredentails(orderTrack));
-            System.out.println("order cancelling is not possible now");
+            ValidatableResponse response = orderMethods.cancel(new OrderCredentials(orderTrack));
+            if (response.extract().statusCode() == 200) {
+                System.out.println("\norder is cancelled\n");
+            } else {
+                System.out.println("\norder was not cancelled\n");
+            }
         }
     }
 
 
-    @Step("Get order track from response")
+    @Step("After test: get order track from response")
     public void getOrderTrack(ValidatableResponse response) {
 
         // Запись track номера заказа для последующей отмены
@@ -60,10 +61,10 @@ public class OrderCreateParameterizedPositiveTest {
     @Parameterized.Parameters
     public static Object[][] getParams() {
         return new Object[][] {
-                {Order.getParameters(List.of("BLACK")),201,true},
-                {Order.getParameters(List.of("GREY")),201,true},
-                {Order.getParameters(List.of("BLACK","GREY")),201,true},
-                {Order.getParameters(List.of("")),201,true}
+                {Order.getParameters(List.of("BLACK")),201},
+                {Order.getParameters(List.of("GREY")),201},
+                {Order.getParameters(List.of("BLACK","GREY")),201},
+                {Order.getParameters(List.of("")),201}
         };
     }
 
@@ -74,7 +75,7 @@ public class OrderCreateParameterizedPositiveTest {
         public void testGetResponse() {
 
             // Создание заказа
-            ValidatableResponse response = orderMethods.createValidatableResponse(order);
+            ValidatableResponse response = orderMethods.create(order);
 
             // Проверка ответа
             response.assertThat().statusCode(statusCode).and().body("track",allOf(notNullValue(), is(not(0))));

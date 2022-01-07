@@ -47,7 +47,7 @@ public class CourierCreateParameterizedNegativeTest {
         public void testGetResponse() {
 
             // Создание курьера
-            ValidatableResponse response = courierMethods.createValidatableResponse(courier);
+            ValidatableResponse response = courierMethods.create(courier);
 
             // Проверка ответа
             response.assertThat().statusCode(statusCode).and().body("code",equalTo(statusCode),"message",equalTo(message));

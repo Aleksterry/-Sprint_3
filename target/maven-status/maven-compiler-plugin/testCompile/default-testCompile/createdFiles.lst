@@ -1,9 +1,0 @@
-qa_scooter\ru\CourierLoginPositiveTest.class
-qa_scooter\ru\OrderCreateParameterizedPositiveTest.class
-qa_scooter\ru\CourierCreateParameterizedPositiveTest.class
-qa_scooter\ru\CourierDeletePositiveTest.class
-qa_scooter\ru\CourierLoginParameterizedNegativeTest.class
-qa_scooter\ru\CourierDeleteParameterizedNegativeTest.class
-qa_scooter\ru\CourierCreateParameterizedNegativeTest.class
-qa_scooter\ru\OrderListTest.class
-qa_scooter\ru\CourierCreateDuplicateLoginTest.class
